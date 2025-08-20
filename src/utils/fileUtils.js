@@ -1,9 +1,14 @@
 import fs from 'fs/promises';
 import path from 'path';
-import pdfParse from 'pdf-parse';
+//import pdfParse from 'pdf-parse';
 import Tesseract from 'tesseract.js';
 import sharp from 'sharp';
 import mammoth from 'mammoth';
+import { fileURLToPath, pathToFileURL} from "url";
+
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
+
+
 
 /**
  * Create necessary directories
@@ -24,13 +29,35 @@ export const createDirectories = async () => {
  * @param {string} pdfPath - Path to PDF file
  * @returns {Promise<string>} - Extracted text
  */
-const extractTextFromPdf = async (pdfPath) => {
+/* const extractTextFromPdf = async (pdfPath) => {
   try {
     const dataBuffer = await fs.readFile(pdfPath);
     const data = await pdfParse(dataBuffer);
     return data.text.trim();
   } catch (error) {
     throw new Error(`Error extracting text from PDF: ${error.message}`);
+  }
+}; */
+
+export const extractTextFromPdf = async (pdfPath) => {
+  try {
+    const buffer = await fs.readFile(pdfPath);
+    const uint8Array = new Uint8Array(buffer);
+
+    // Load PDF in Node without a worker
+    const pdf = await pdfjs.getDocument({ data: uint8Array, disableWorker: true }).promise;
+
+    const textChunks = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      textChunks.push(content.items.map((item) => item.str).join(" "));
+    }
+
+    return textChunks.join("\n").trim();
+  } catch (err) {
+    console.error("PDF extraction failed:", err);
+    throw new Error("Failed to extract text from PDF");
   }
 };
 
