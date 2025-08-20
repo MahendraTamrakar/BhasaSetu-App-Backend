@@ -46,7 +46,7 @@ cp .env.example .env
 Edit `.env` and add your configuration:
 ```env
 NODE_ENV=development
-PORT=5000
+PORT=8080
 GEMINI_API_KEY=your_gemini_api_key_here
 UPLOAD_FOLDER=uploads
 MAX_FILE_SIZE=16777216
