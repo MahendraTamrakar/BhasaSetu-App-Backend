@@ -110,10 +110,8 @@ export const translateFile = async (req, res) => {
 
     console.log(`[INFO] Translating file content to ${cleanTargetLang}`);
     
-    
     // Translate using Gemini AI
     const translatedText = await translateWithGemini(extractedText, cleanTargetLang);
-    //console.log("[DEBUG] OCR extracted text:", extractedText);
 
     // Generate audio using TTS
     let audioFilename = null;

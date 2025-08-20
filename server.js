@@ -16,6 +16,8 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('📍 Available endpoints:');
   console.log('   - POST /translate-text (for text translation)');
   console.log('   - POST /translate (for file translation)');
+  console.log('   - POST /summarize (for text summarization)');
+  console.log('   - POST /key-points (for key points extraction)');
   console.log('   - GET /uploads/:filename (for file downloads)');
   console.log('   - GET /health (health check)');
   console.log('   - GET /supported-languages (get supported languages)');
