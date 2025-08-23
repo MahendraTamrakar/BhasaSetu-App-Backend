@@ -1,5 +1,4 @@
-import { translateWithGemini } from '../services/geminiService.js';
-import { generateAudio } from '../services/ttsService.js';
+import { aiService } from '../services/unifiedAIService.js';
 import { extractTextFromFile, cleanupFile } from '../utils/fileUtils.js';
 import { LANGUAGE_VOICE_MAP } from '../config/languages.js';
 
@@ -24,21 +23,21 @@ export const translateText = async (req, res) => {
     }
 
     // Check if target language is supported
-    if (!(cleanTargetLang in LANGUAGE_VOICE_MAP)) {
+    if (!aiService.isLanguageSupported(cleanTargetLang)) {
       return res.status(400).json({
-        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${Object.keys(LANGUAGE_VOICE_MAP).join(', ')}`
+        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${aiService.getSupportedLanguages().join(', ')}`
       });
     }
 
     console.log(`[INFO] Translating text to ${cleanTargetLang}`);
 
-    // Translate using Gemini AI
-    const translatedText = await translateWithGemini(cleanText, cleanTargetLang);
+    // Translate using unified AI service
+    const translatedText = await aiService.translateText(cleanText, cleanTargetLang);
 
-    // Generate audio using TTS
+    // Generate audio using unified AI service
     let audioFilename = null;
     try {
-      audioFilename = await generateAudio(translatedText, cleanTargetLang);
+      audioFilename = await aiService.generateAudio(translatedText, cleanTargetLang);
       console.log(`[INFO] Audio generated: ${audioFilename}`);
     } catch (audioError) {
       console.log(`[WARNING] Audio generation failed: ${audioError.message}`);
@@ -88,9 +87,9 @@ export const translateFile = async (req, res) => {
     const cleanTargetLang = target_lang.trim();
 
     // Check if target language is supported
-    if (!(cleanTargetLang in LANGUAGE_VOICE_MAP)) {
+    if (!aiService.isLanguageSupported(cleanTargetLang)) {
       return res.status(400).json({
-        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${Object.keys(LANGUAGE_VOICE_MAP).join(', ')}`
+        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${aiService.getSupportedLanguages().join(', ')}`
       });
     }
 
@@ -110,13 +109,13 @@ export const translateFile = async (req, res) => {
 
     console.log(`[INFO] Translating file content to ${cleanTargetLang}`);
     
-    // Translate using Gemini AI
-    const translatedText = await translateWithGemini(extractedText, cleanTargetLang);
+    // Translate using unified AI service
+    const translatedText = await aiService.translateText(extractedText, cleanTargetLang);
 
-    // Generate audio using TTS
+    // Generate audio using unified AI service
     let audioFilename = null;
     try {
-      audioFilename = await generateAudio(translatedText, cleanTargetLang);
+      audioFilename = await aiService.generateAudio(translatedText, cleanTargetLang);
       console.log(`[INFO] Audio generated: ${audioFilename}`);
     } catch (audioError) {
       console.log(`[WARNING] Audio generation failed: ${audioError.message}`);
@@ -152,8 +151,9 @@ export const translateFile = async (req, res) => {
 };
 
 export const getSupportedLanguages = (req, res) => {
+  const supportedLanguages = aiService.getSupportedLanguages();
   res.json({
-    languages: Object.keys(LANGUAGE_VOICE_MAP),
-    total_languages: Object.keys(LANGUAGE_VOICE_MAP).length
+    languages: supportedLanguages,
+    total_languages: supportedLanguages.length
   });
 };

@@ -1,7 +1,4 @@
-import { model } from '../config/gemini.js';
-import { generateAudio } from '../services/ttsService.js';
-import { cleanOutput } from '../utils/textUtils.js';
-import { LANGUAGE_VOICE_MAP } from '../config/languages.js';
+import { aiService } from '../services/unifiedAIService.js';
 
 /**
  * Generate AI summary of translated text
@@ -27,30 +24,21 @@ export const summarizeText = async (req, res) => {
     }
 
     // Check if target language is supported
-    if (!(cleanTargetLang in LANGUAGE_VOICE_MAP)) {
+    if (!aiService.isLanguageSupported(cleanTargetLang)) {
       return res.status(400).json({
-        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${Object.keys(LANGUAGE_VOICE_MAP).join(', ')}`
+        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${aiService.getSupportedLanguages().join(', ')}`
       });
     }
 
     console.log(`[INFO] Generating summary in ${cleanTargetLang}`);
 
-    // Generate summary using Gemini AI
-    const prompt = `Create a concise summary of the following text in ${cleanTargetLang}. 
-    The summary should capture the main points and key information in a clear, readable format.
-    Provide only the summary without any additional commentary.
-    
-    Text to summarize:
-    ${cleanText}`;
+    // Generate summary using unified AI service
+    const summaryText = await aiService.summarizeText(cleanText, cleanTargetLang);
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const summaryText = cleanOutput(response.text());
-
-    // Generate audio using TTS
+    // Generate audio using unified AI service
     let audioFilename = null;
     try {
-      audioFilename = await generateAudio(summaryText, cleanTargetLang);
+      audioFilename = await aiService.generateAudio(summaryText, cleanTargetLang);
       console.log(`[INFO] Summary audio generated: ${audioFilename}`);
     } catch (audioError) {
       console.log(`[WARNING] Summary audio generation failed: ${audioError.message}`);
@@ -102,31 +90,21 @@ export const extractKeyPoints = async (req, res) => {
     }
 
     // Check if target language is supported
-    if (!(cleanTargetLang in LANGUAGE_VOICE_MAP)) {
+    if (!aiService.isLanguageSupported(cleanTargetLang)) {
       return res.status(400).json({
-        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${Object.keys(LANGUAGE_VOICE_MAP).join(', ')}`
+        error: `Unsupported target language: ${cleanTargetLang}. Supported: ${aiService.getSupportedLanguages().join(', ')}`
       });
     }
 
     console.log(`[INFO] Extracting key points in ${cleanTargetLang}`);
 
-    // Extract key points using Gemini AI
-    const prompt = `Extract the key points from the following text in ${cleanTargetLang}. 
-    Present them as a numbered list of the most important points.
-    Each point should be concise but informative.
-    Provide only the key points without any additional commentary.
-    
-    Text to analyze:
-    ${cleanText}`;
+    // Extract key points using unified AI service
+    const keyPointsText = await aiService.extractKeyPoints(cleanText, cleanTargetLang);
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const keyPointsText = cleanOutput(response.text());
-
-    // Generate audio using TTS
+    // Generate audio using unified AI service
     let audioFilename = null;
     try {
-      audioFilename = await generateAudio(keyPointsText, cleanTargetLang);
+      audioFilename = await aiService.generateAudio(keyPointsText, cleanTargetLang);
       console.log(`[INFO] Key points audio generated: ${audioFilename}`);
     } catch (audioError) {
       console.log(`[WARNING] Key points audio generation failed: ${audioError.message}`);

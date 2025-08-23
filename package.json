@@ -15,7 +15,8 @@
     "tts",
     "gemini",
     "api",
-    "multilingual"
+    "multilingual",
+    "sarvam"
   ],
   "author": "Mahendra Tamrakar",
   "license": "MIT",

@@ -77,3 +77,6 @@ test-results/
 # Docker
 .dockerignore
 Dockerfile
+
+#files
+sarvam-debug.js

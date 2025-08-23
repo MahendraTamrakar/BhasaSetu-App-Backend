@@ -9,6 +9,8 @@ import { cleanOutput } from '../utils/textUtils.js';
  */
 export const generateSummary = async (text, targetLang) => {
   try {
+    console.log(`[INFO] Generating summary with Gemini AI in ${targetLang}`);
+    
     const prompt = `Please provide a concise summary of the following text in ${targetLang}. 
     Keep the summary informative but brief, highlighting the main points and key information.
     Provide only the summary without any additional commentary.
@@ -20,6 +22,7 @@ export const generateSummary = async (text, targetLang) => {
     const response = await result.response;
     const summaryText = response.text();
 
+    console.log(`[INFO] Gemini summary generation successful in ${targetLang}`);
     return cleanOutput(summaryText);
   } catch (error) {
     console.error(`[ERROR] Gemini summary generation failed: ${error.message}`);
@@ -35,6 +38,8 @@ export const generateSummary = async (text, targetLang) => {
  */
 export const generateKeyPoints = async (text, targetLang) => {
   try {
+    console.log(`[INFO] Extracting key points with Gemini AI in ${targetLang}`);
+    
     const prompt = `Please extract and list the key points from the following text in ${targetLang}. 
     Format the response as a bulleted list of the most important points.
     Provide only the key points without additional commentary.
@@ -46,6 +51,7 @@ export const generateKeyPoints = async (text, targetLang) => {
     const response = await result.response;
     const keyPointsText = response.text();
 
+    console.log(`[INFO] Gemini key points extraction successful in ${targetLang}`);
     return cleanOutput(keyPointsText);
   } catch (error) {
     console.error(`[ERROR] Gemini key points generation failed: ${error.message}`);
